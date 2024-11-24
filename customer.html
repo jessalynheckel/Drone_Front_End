@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Customer Tracking - Drone Delivery</title>
+  <title>Customer 1  Tracking - Drone Delivery</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://maps.googleapis.com/maps/api/js?key"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8Fv2dbTd9Wrx9Dh8EBs7pFFBwpswFozU" async defer></script>
   <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
   <style>
     #search-container {
@@ -15,12 +15,14 @@
       background-color: #f2f2f2;
       border-radius: 5px;
     }
+
     #routeInput {
       padding: 8px;
       border: 1px solid #ccc;
       border-radius: 3px;
       flex-grow: 1;
     }
+
     #searchButton {
       padding: 8px 12px;
       background-color: #3c4ab5;
@@ -30,38 +32,114 @@
       cursor: pointer;
       margin-left: 10px;
     }
+
+    #drone-info {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #f2f2f2;
+      border-radius: 5px;
+    }
   </style>
   <script>
-    function initMap() {
-      let map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 9, 
-        center: {lat: 36.369361, lng: -94.223722} 
-      });
+    let map;
+    let droneMarker;
+    let droneInfoWindow;
+    let markers = [];
 
-      let markers = []; // Array to store markers
+    function fetchDroneData(droneId) {
+      fetch(`http://127.0.0.1:5000/api/drones/${droneId}`)
+        .then(response => response.json())
+        .then(data => {
+          const {Latitude, Longitude, Altitude} = data;
+
+          const droneIcon = {
+            url: "plane.png",
+            scaledSize: new google.maps.Size(40, 40),
+          };
+
+          if (!droneMarker) {
+            droneMarker = new google.maps.Marker({
+              position: {lat: parseFloat(Latitude), lng: parseFloat(Longitude)},
+              map: map,
+              title: `Drone: ${droneId}`,
+              icon: droneIcon
+            });
+
+            droneInfoWindow = new google.maps.InfoWindow({
+              content: `
+                <p>Drone ID: ${droneId}</p>
+                <p>Latitude: ${Latitude}</p>
+                <p>Longitude: ${Longitude}</p>
+                <p>Altitude: ${Altitude}</p>
+              `
+            });
+
+            droneMarker.addListener("click", () => {
+              if (droneInfoWindow) {
+                droneInfoWindow.open({
+                  anchor: droneMarker,
+                  map,
+                  shouldFocus: false,
+                });
+              }
+            });
+          } else {
+            droneMarker.setPosition({lat: parseFloat(Latitude), lng: parseFloat(Longitude)});
+            if (droneInfoWindow) {
+              droneInfoWindow.setContent(`
+                <p>Drone ID: ${droneId}</p>
+                <p>Latitude: ${Latitude}</p>
+                <p>Longitude: ${Longitude}</p>
+                <p>Altitude: ${Altitude}</p>
+              `);
+            }
+          }
+
+          document.getElementById('drone-info').innerHTML = `
+            <p>Drone ID: ${droneId}</p>
+            <p>Latitude: ${Latitude}</p>
+            <p>Longitude: ${Longitude}</p>
+            <p>Altitude: ${Altitude}</p>
+          `;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 9,
+        center: {lat: 36.369361, lng: -94.223722}
+      });
 
       const routeInput = document.getElementById('routeInput');
-      routeInput.value = "001"; // Prefill the input
+      routeInput.value = "001";
 
-      routeInput.addEventListener('input', function(e) {
+      routeInput.addEventListener('input', function (e) {
         if (this.value === "001" && e.inputType === "insertText") {
-          this.value = e.data; // Replace "001" with the typed character
+          this.value = e.data;
         }
-        this.value = this.value.replace(/[^0-9]/g, ''); // Allow only numbers
+        this.value = this.value.replace(/[^0-9]/g, '');
       });
 
-      routeInput.addEventListener('keypress', function(event) {
+      routeInput.addEventListener('keypress', function (event) {
         if (event.key === 'Enter') {
           document.getElementById('searchButton').click();
         }
       });
 
-      document.getElementById('searchButton').addEventListener('click', function() {
-        const routeId = "RT-" + routeInput.value; // Add "RT-" prefix
+      document.getElementById('searchButton').addEventListener('click', function () {
+        const routeId = "RT-" + routeInput.value;
 
-        // Remove existing markers
+        // Clear existing markers and drone marker
         markers.forEach(marker => marker.setMap(null));
         markers = [];
+        if (droneMarker) {
+          droneMarker.setMap(null);
+          droneMarker = null;
+        }
+        if (droneInfoWindow) {
+          droneInfoWindow.close();
+        }
 
         fetch(`http://127.0.0.1:5000/api/routes/${routeId}`)
           .then(response => response.json())
@@ -78,46 +156,58 @@
 
             Object.entries(positions).forEach(([posKey, points]) => {
               const [lat, lng] = posKey.split(',');
-              const marker = new google.maps.Marker({
-                position: {lat: parseFloat(lat), lng: parseFloat(lng)},
-                map: map,
-                title: `Waypoints: ${points.map(p => p.Waypoint_ID).join(', ')}` 
-              });
 
-              const infoContent = points.map(point => `
-                <p>Waypoint: ${point.Waypoint_ID}<br>
-                Latitude: ${point.Latitude}<br>
-                Longitude: ${point.Longitude}</p>
-              `).join('');
-
-              const infowindow = new google.maps.InfoWindow({
-                content: infoContent
-              });
-
-              marker.addListener("click", () => {
-                infowindow.open({
-                  anchor: marker,
-                  map,
-                  shouldFocus: false,
+              const createMarker = () => {
+                const marker = new google.maps.Marker({
+                  position: {lat: parseFloat(lat), lng: parseFloat(lng)},
+                  map: map,
+                  title: `Waypoints: ${points.map(p => p.Waypoint_ID).join(', ')}`
                 });
-              });
 
-              markers.push(marker);
+                const infoContent = points.map(point => `
+                  <p>Waypoint: ${point.Waypoint_ID}<br>
+                  Latitude: ${point.Latitude}<br>
+                  Longitude: ${point.Longitude}</p>
+                `).join('');
+
+                const infoWindow = new google.maps.InfoWindow({
+                  content: infoContent
+                });
+
+                marker.addListener("click", () => {
+                  infoWindow.open({
+                    anchor: marker,
+                    map,
+                    shouldFocus: false,
+                  });
+                });
+
+                markers.push(marker);
+              };
+
+              if (google.maps.marker && google.maps.marker.AdvancedMarkerElement) {
+                createMarker();
+              } else {
+                map.addListener('idle', createMarker);
+              }
+
             });
 
-            // Zoom in on the first waypoint
             if (waypoints.length > 0) {
               map.setCenter({
                 lat: parseFloat(waypoints[0].Latitude),
                 lng: parseFloat(waypoints[0].Longitude)
               });
             }
+
+            fetchDroneData('DR-012');
           })
           .catch(error => console.error('Error:', error));
       });
     }
   </script>
 </head>
+
 <body onload="initMap()">
   <header>
     <h1>Customer Tracking</h1>
@@ -135,8 +225,48 @@
       <label for="routeInput" style="margin-right: 5px;">RT-</label>
       <input type="text" id="routeInput" placeholder="Enter Route Number">
       <button id="searchButton">Search</button>
-    </div></br>
+    </div><br>
     <div id="map" style="height: 500px; width: 100%;"></div>
+    <div id="drone-info"></div>
+    <div id="drone-selection-container">
+      <label for="droneSelect">Select Drone:</label>
+      <select id="droneSelect">
+      </select>
+    </div>
+
+    <script>
+      document.getElementById('droneSelect').addEventListener('change', function () {
+        const selectedDroneId = this.value;
+        fetchDroneData(selectedDroneId);
+        clearInterval(window.droneInterval);
+        window.droneInterval = setInterval(() => fetchDroneData(selectedDroneId), 3000);
+      });
+
+      // Initialize fetching data for the default selected drone
+      window.droneInterval = setInterval(() => fetchDroneData(document.getElementById('droneSelect').value), 3000);
+    
+      function populateDroneSelect() {
+        fetch('http://127.0.0.1:5000/api/drones')
+          .then(response => response.json())
+          .then(drones => {
+            const droneSelect = document.getElementById('droneSelect');
+            droneSelect.innerHTML = '';
+            drones.forEach(drone => {
+              const option = document.createElement('option');
+              option.value = drone.BUNO_ID;
+              option.text = `${drone.BUNO_ID} - ${drone.Drone_Model}`;
+              droneSelect.appendChild(option);
+            });
+            // Initialize tracking with first drone
+            if (drones.length > 0) {
+              fetchDroneData(drones[0].BUNO_ID);
+            }
+          })
+          .catch(error => console.error('Error loading drones:', error));
+      }
+      // Call when page loads
+      document.addEventListener('DOMContentLoaded', populateDroneSelect); 
+    </script>
   </main>
 </body>
 </html>
