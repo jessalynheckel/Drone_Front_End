@@ -49,6 +49,24 @@
         header.classList.remove("collapsed");
       }
     };
+
+
+  fetch('http://127.0.0.1:5000/api/pilots')
+    .then(response => response.json())
+    .then(data => {
+      const operatorsSection = document.querySelector('.operators-section');
+      data.forEach(pilot => {
+        const pilotDiv = document.createElement('div');
+        pilotDiv.classList.add('pilot-profile');
+        pilotDiv.innerHTML = `
+          <h4>Pilot ID: ${pilot.Pilot_ID}</h4>
+          <p>Current: ${pilot.Pilot_Current ? 'Yes' : 'No'}</p>
+          <p>Hours: ${pilot.Pilot_Hours}</p>
+        `;
+        operatorsSection.appendChild(pilotDiv);
+      });
+    })
+    .catch(error => console.error('Error fetching pilots:', error));
   </script>
 </body>
 </html>
