@@ -1,15 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Drone Operators</title>
-  <link rel="stylesheet" href="style.css"> 
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+    }
+
+    .image-box {
+      width: 300px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .operator-profile {
+      border-bottom: 1px solid #ddd;
+      padding: 10px 0;
+    }
+
+    .operator-profile:last-child {
+      border-bottom: none;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+
+    .form-group button {
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .image-box img {
+  width: 200px; /* Set a fixed width */
+  height: 200px; /* Set a fixed height */
+  object-fit: cover; /* Ensure the image covers the entire area without distortion */
+}
+
+.dashboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.dashboard-card {
+  background-color: #f4f4f4;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column; /* Arrange items in a column */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+}
+
+.chart-container {
+  position: relative;
+  height: 200px;
+  width: 100%;
+}
+
+.operators-section table {
+  margin: 0 auto; /* Center the table horizontally */
+  border-collapse: collapse;
+  width: 80%; /* Adjust the width as needed */
+}
+.operators-section th, .operators-section td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center; /* Center the text in the table cells */
+}
+.operators-section th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+  </style>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
   <header id="myHeader">
     <h1>Drone Operators</h1>
-  </br>
+    </br>
   </header>
   <nav>
     <a href="index.html">Home</a>
@@ -20,53 +125,222 @@
   <main>
     <h2>Drone Operator Dashboard</h2>
     <p>Information and resources for our valued drone operators.</p>
+    <section class="dashboard">
+      <div class="dashboard-card">
+        <h3>Total Pilots</h3>
+        <p id="total-pilots">Loading...</p>
+      </div>
+      <div class="dashboard-card">
+        <h3>Active Pilots</h3>
+        <p id="active-pilots">Loading...</p>
+      </div>
+      <div class="dashboard-card">
+        <h3>Total Hours</h3>
+        <p id="total-hours">Loading...</p>
+      </div>
+      <div class="dashboard-card chart-container">
+        <canvas id="hoursChart"></canvas>
+      </div>
+    </section>
 
     <section class="operators-section">
       <h3>Operator Profiles</h3>
-      <p>List or grid displaying operator details (ID, experience, certifications).</p>
-      </section>
+      <p>Table displaying all pilot information.</p>
+      <table id="operator-profiles">
+        <thead>
+          <tr>
+            <th>Pilot ID</th>
+            <th>Current</th>
+            <th>Hours</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Operator profiles will be inserted here by JavaScript -->
+        </tbody>
+      </table>
+    </section>
 
     <section class="operators-section">
-      <h3>Training & Certification</h3>
-      <p>Information on drone operation training programs and certification requirements.</p>
-      </section>
+      <h3>Pilot Training Updates</h3>
+      <p>Information on drone operation training programs, update hours here.</p>
+      <form id="update-pilot-form">
+        <div class="form-group">
+          <label for="pilot-id">Pilot ID</label>
+          <input type="text" id="pilot-id" name="pilot-id" required>
+        </div>
+        <div class="form-group">
+          <label for="pilot-current">Current</label>
+          <select id="pilot-current" name="pilot-current" required>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="pilot-hours">Hours</label>
+          <input type="number" id="pilot-hours" name="pilot-hours" required>
+        </div>
+        <div class="form-group">
+          <button type="submit">Update Pilot</button>
+        </div>
+      </form>
+    </section>
 
     <section class="operators-section">
       <h3>Safety Guidelines</h3>
       <p>Important safety protocols and best practices for drone operators.</p>
-      </section>
+      <div class="container">
+
+        <div class="image-box">
+          <img src="https://th.bing.com/th/id/OIP.hCd2qSeELpYAVHJAlITRSQHaHa?w=176&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7"
+            alt="Drone Safety Tips">
+          <p>Maintain a safe distance from people and property.</p>
+        </div>
+
+        <div class="image-box">
+          <img src="https://th.bing.com/th/id/OIP.7tQiPxi4cpgRQ_KERxjaWAAAAA?w=225&h=158&c=7&r=0&o=5&dpr=1.3&pid=1.7"
+            alt="Line of Sight">
+          <p>Keep your drone within your visual line of sight.</p>
+        </div>
+
+        <div class="image-box">
+          <img src="https://th.bing.com/th/id/OIP.c3L5UsWOXVoSJf13RQiQrAHaE7?w=243&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7"
+            alt="No Fly Zones">
+          <p>Be aware of and respect no-fly zones.</p>
+        </div>
+
+        <div class="image-box">
+          <img src="https://th.bing.com/th/id/OIP.xY9AMjNQXaJ2ABmgvXg-lwHaHa?w=208&h=208&c=7&r=0&o=5&dpr=1.3&pid=1.7"
+            alt="Register Your Drone">
+          <p>Register your drone with the FAA.</p>
+        </div>
+
+        <div class="image-box">
+          <img src="https://th.bing.com/th/id/OIP.hlede6JJCEbll2a6Z5lnSQHaHa?w=186&h=186&c=7&r=0&o=5&dpr=1.3&pid=1.7"
+            alt="Respect Privacy">
+          <p>Respect the privacy of others.</p>
+        </div>
+
+        <div class="image-box">
+          <img src="https://th.bing.com/th/id/OIP.B1F_6bmRGGOmeyoYNmiCgAAAAA?w=202&h=141&c=7&r=0&o=5&dpr=1.3&pid=1.7"
+            alt="Fly Safe Fly Smart">
+          <p>Fly safe and fly smart.</p>
+        </div>
+
+      </div>
+
+    </section>
 
   </main>
-  <footer>
-  </footer>
-  <script>
-    // JavaScript for collapsible header (same as in index.html)
-    window.onscroll = function() {
-      var header = document.getElementById("myHeader");
-      if (window.pageYOffset > 100) { 
-        header.classList.add("collapsed");
-      } else {
-        header.classList.remove("collapsed");
-      }
-    };
-
-
-  fetch('http://127.0.0.1:5000/api/pilots')
-    .then(response => response.json())
-    .then(data => {
-      const operatorsSection = document.querySelector('.operators-section');
-      data.forEach(pilot => {
-        const pilotDiv = document.createElement('div');
-        pilotDiv.classList.add('pilot-profile');
-        pilotDiv.innerHTML = `
-          <h4>Pilot ID: ${pilot.Pilot_ID}</h4>
-          <p>Current: ${pilot.Pilot_Current ? 'Yes' : 'No'}</p>
-          <p>Hours: ${pilot.Pilot_Hours}</p>
-        `;
-        operatorsSection.appendChild(pilotDiv);
-      });
-    })
-    .catch(error => console.error('Error fetching pilots:', error));
-  </script>
 </body>
+
+</html>
+<footer>
+</footer>
+<script>
+  // JavaScript for collapsible header (same as in index.html)
+  window.onscroll = function () {
+    var header = document.getElementById("myHeader");
+    if (window.pageYOffset > 100) {
+      header.classList.add("collapsed");
+    } else {
+      header.classList.remove("collapsed");
+    }
+  };
+
+
+  // Fetch operator profiles from the API
+  function fetchOperatorProfiles() {
+    console.log('Fetching operator profiles...');
+    fetch('http://127.0.0.1:5000/api/pilots')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Data fetched:', data);
+        const profiles = data.map(pilot => `
+            <tr class="operator-profile">
+              <td>${pilot.Pilot_ID}</td>
+              <td>${pilot.Pilot_Current ? 'Yes' : 'No'}</td>
+              <td>${pilot.Pilot_Hours}</td>
+            </tr>
+          `).join('');
+        document.querySelector('#operator-profiles tbody').innerHTML = profiles;
+
+        // Update the dashboard metrics
+        // Update dashboard statistics
+        document.getElementById('total-pilots').innerText = data.length;
+        document.getElementById('active-pilots').innerText = data.filter(pilot => pilot.Pilot_Current).length;
+        document.getElementById('total-hours').innerText = data.reduce((sum, pilot) => sum + pilot.Pilot_Hours, 0);
+
+
+
+        // Update pilot information
+        document.getElementById('update-pilot-form').addEventListener('submit', function (event) {
+          event.preventDefault();
+          const pilotId = document.getElementById('pilot-id').value;
+          const pilotCurrent = document.getElementById('pilot-current').value;
+          const pilotHours = document.getElementById('pilot-hours').value;
+
+          fetch(`http://127.0.0.1:5000/api/pilots/${pilotId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              Pilot_Current: pilotCurrent === 'true',
+              Pilot_Hours: pilotHours
+            })
+          })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+              }
+              return response.json();
+            })
+            .then(data => {
+              console.log('Pilot updated:', data);
+              fetchOperatorProfiles(); // Refresh the operator profiles
+            })
+            .catch(error => {
+              console.error('Error updating pilot:', error);
+            });
+        });
+
+        // Update chart
+        const ctx = document.getElementById('hoursChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: data.map(pilot => pilot.Pilot_ID),
+            datasets: [{
+              label: 'Hours',
+              data: data.map(pilot => pilot.Pilot_Hours),
+              backgroundColor: 'rgba(0, 123, 255, 0.5)',
+              borderColor: 'rgba(0, 123, 255, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching operator profiles:', error);
+        document.getElementById('operator-profiles').innerHTML = 'Failed to load operator profiles.';
+      });
+  }
+
+  // Call the function to fetch operator profiles when the page loads
+  window.onload = fetchOperatorProfiles;
+</script>
+</body>
+
 </html>
