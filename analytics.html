@@ -5,11 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Drone Delivery Analytics</title>
   <link rel="stylesheet" href="style.css"> 
+  <style>
+    
+    body {
+      font-family: sans-serif;
+      margin: 0;
+    }
+
+    main {
+      padding: 20px;
+    }
+
+    .analytics-section, 
+    .premium-section {
+      margin-bottom: 30px;
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 5px;
+    }
+
+    .premium-section ul {
+      list-style: none;
+      padding: 0; 
+    }
+
+    .premium-section li {
+      margin-bottom: 10px; 
+    }
+
+    button {
+      background-color: #007bff; 
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 15px; /* Add spacing below the button */
+    }
+  </style>
 </head>
 <body>
   <header id="myHeader">
     <h1>Analytics</h1>
-    <p>(for you stats lovers)</p>
+    <p>Comprehensive data and insights to optimize your drone delivery operations.</p> 
   </header>
   <nav>
     <a href="index.html">Home</a>
@@ -19,28 +57,27 @@
   </nav>
   <main>
     <h2>Drone Delivery Analytics</h2>
-    <p>Comprehensive data and insights to optimize your drone delivery operations.</p>
 
     <section class="analytics-section">
-      <h3>Delivery Performance</h3>
-      <p>Charts and graphs showcasing key delivery metrics (e.g., delivery times, success rates, etc.).</p>
-      </section>
+      <h3>API Information</h3>
+      <p>For detailed API documentation and endpoints, please refer to our comprehensive API documentation:</p>
+      <a href="http://127.0.0.1:5000/api" target="_blank" class="api-link">API Documentation</a> 
+    </section>
 
-    <section class="analytics-section">
-      <h3>Drone Utilization</h3>
-      <p>Visualizations of drone activity, flight paths, and usage patterns.</p>
-      </section>
-
-    <section class="analytics-section">
-      <h3>Area Coverage</h3>
-      <p>Maps and data illustrating delivery coverage and potential expansion zones.</p>
-     </section>
+    <section class="premium-section">
+      <h3>Premium Analytics</h3>
+      <button onclick="window.location.href='mailto:ptrainor@uark.edu?subject=Premium Access Request'">Request Premium Access</button> 
+      <ul>
+        <li><strong>Delivery Performance:</strong> Charts and graphs showcasing key delivery metrics (e.g., delivery times, success rates, etc.).</li>
+        <li><strong>Drone Utilization:</strong> Visualizations of drone activity, flight paths, and usage patterns.</li>
+        <li><strong>Area Coverage:</strong> Maps and data illustrating delivery coverage and potential expansion zones.</li>
+      </ul>
+    </section>
 
   </main>
   <footer>
   </footer>
   <script>
-    // JavaScript for collapsible header (same as in index.html)
     window.onscroll = function() {
       var header = document.getElementById("myHeader");
       if (window.pageYOffset > 100) { 
